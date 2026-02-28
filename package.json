@@ -1,7 +1,11 @@
 {
   "name": "chronos-platform",
   "private": true,
-  "workspaces": ["apps/api", "apps/web", "packages/*"],
+  "workspaces": [
+    "apps/api",
+    "apps/web",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "dev:api": "npm run dev --workspace=apps/api",
@@ -11,5 +15,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@nestjs/throttler": "^6.5.0"
   }
 }
