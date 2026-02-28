@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002';
+const API_BASE = '/chronos/api';
 
 interface ChronosEvent {
   id: string;
