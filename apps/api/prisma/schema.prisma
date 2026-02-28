@@ -1,0 +1,99 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Era {
+  id          String   @id @default(uuid())
+  nameRu      String   @map("name_ru")
+  nameEn      String?  @map("name_en")
+  jdnStart    BigInt   @map("jdn_start")
+  jdnEnd      BigInt?  @map("jdn_end")
+  colorHex    String   @map("color_hex") @default("#4A90D9")
+  description String?  @map("description_ru")
+  sortOrder   Int      @default(0) @map("sort_order")
+  events      Event[]
+
+  @@index([jdnStart, jdnEnd])
+  @@map("eras")
+}
+
+model Event {
+  id            String   @id @default(uuid())
+  wikidataQid   String?  @unique @map("wikidata_qid")
+  titleRu       String   @map("title_ru")
+  titleEn       String?  @map("title_en")
+  descriptionRu String?  @map("description_ru")
+  jdnStart      BigInt   @map("jdn_start")
+  jdnEnd        BigInt?  @map("jdn_end")
+  dateGregorian String?  @map("date_gregorian")
+  dateJulian    String?  @map("date_julian")
+  dateIso       String?  @map("date_iso")
+  category      String   @default("general")
+  region        String?
+  sourceUrl     String?  @map("source_url")
+  sourceType    String   @default("manual") @map("source_type")
+  confidence    Int      @default(3)
+  eraId         String?  @map("era_id")
+  era           Era?     @relation(fields: [eraId], references: [id])
+  rawData       Json?    @map("raw_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([jdnStart])
+  @@index([category])
+  @@map("events")
+}
+
+model CalendarConversion {
+  id             String   @id @default(uuid())
+  jdn            BigInt   @unique
+  gregorianYear  Int      @map("gregorian_year")
+  gregorianMonth Int      @map("gregorian_month")
+  gregorianDay   Int      @map("gregorian_day")
+  julianYear     Int      @map("julian_year")
+  julianMonth    Int      @map("julian_month")
+  julianDay      Int      @map("julian_day")
+  isoString      String   @map("iso_string")
+  dayOfWeek      Int      @map("day_of_week")
+  computedAt     DateTime @default(now()) @map("computed_at")
+
+  @@index([jdn])
+  @@map("calendar_conversions")
+}
+
+model AstronomicalEvent {
+  id              String    @id @default(uuid())
+  type            String
+  subtype         String?
+  jdn             BigInt
+  jdnFraction     Float     @default(0) @map("jdn_fraction")
+  utcDatetime     DateTime? @map("utc_datetime")
+  magnitude       Float?
+  geographicPath  Json?     @map("geographic_path")
+  sarosSeries     Int?      @map("saros_series")
+  gamma           Float?
+  season          String?
+  computedAt      DateTime  @default(now()) @map("computed_at")
+
+  @@index([jdn, type])
+  @@map("astronomical_events")
+}
+
+model TimelineRange {
+  id           String   @id @default(uuid())
+  name         String?
+  jdnStart     BigInt   @map("jdn_start")
+  jdnEnd       BigInt   @map("jdn_end")
+  zoomLevel    Int      @default(4) @map("zoom_level")
+  activeLayers Json     @default("{}") @map("active_layers")
+  filters      Json     @default("{}")
+  shareToken   String?  @unique @map("share_token")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("timeline_ranges")
+}
